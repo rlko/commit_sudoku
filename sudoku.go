@@ -30,6 +30,7 @@ func print_grid(args []string) {
 			fmt.Println("---+---+---")
 		}
 	}
+	fmt.Println("")
 }
 
 func line_has_duplication(arg string) bool {
@@ -48,12 +49,12 @@ func line_has_duplication(arg string) bool {
 }
 
 func col_has_duplication(args []string, col int) bool {
-	var j, y int
-	for j = 0; j < 9; j++ {
-		if unicode.IsNumber(rune(args[j][col])) {
+	var i, y int
+	for i = 0; i < 9; i++ {
+		if unicode.IsNumber(rune(args[i][col])) {
 			for y = 0; y < 9; y++ {
-				if j != y {
-					if args[j][col] == args[y][col] {
+				if i != y {
+					if args[i][col] == args[y][col] {
 						return true
 					}
 				}
@@ -62,20 +63,13 @@ func col_has_duplication(args []string, col int) bool {
 	}
 	return false
 }
+
 func cols_have_duplication(args []string) bool {
-	var i, j, y int
+	var i int
 
 	for i = 0; i < 9; i++ {
-		for j = 0; j < 9; j++ {
-			if unicode.IsNumber(rune(args[j][i])) {
-				for y = 0; y < 9; y++ {
-					if j != y {
-						if args[j][i] == args[y][i] {
-							return true
-						}
-					}
-				}
-			}
+		if col_has_duplication(args, i) {
+			return true
 		}
 	}
 	return false
@@ -95,16 +89,20 @@ func extract_box(args []string, i int, j int) string {
 	return string(box[:])
 }
 
+func box_has_duplication(args[]string, i int, j int) bool {
+	if line_has_duplication(extract_box(args, i, j)) {
+		return true
+	}
+	return false
+}
+
 func boxes_have_duplication(args []string) bool {
 	var i, j int
-//	var box string
 
 	i = 0
 	for i < 9 {
 		j = 0
 		for j < 9 {
-//			box = extract_box(args, i, j)
-//			fmt.Println(box)
 			if line_has_duplication(extract_box(args, i, j)) {
 				return true
 			}
@@ -125,9 +123,6 @@ func has_minimum_required(args []string) bool {
 			}
 		}
 	}
-	fmt.Print("\n")
-	fmt.Print(counter)
-	fmt.Println(" digits inside")
 	if counter < 17 {
 		return false
 	}
@@ -160,13 +155,14 @@ func validate(args []string) {
 	}
 }
 
-func is_valid(args []string) bool {
-	for _, arg := range args {
-		if line_has_duplication(arg) {
-			return false
-		}
+func digit_is_valid(args []string, chars []byte, i int, j int, d byte) bool {
+	chars[j] = d + '0'
+	args[i] = string(chars)
+
+	if line_has_duplication(args[i]) {
+		return false
 	}
-	if cols_have_duplication(args) {
+	if col_has_duplication(args, j) {
 		return false
 	}
 	if boxes_have_duplication(args) {
@@ -175,20 +171,32 @@ func is_valid(args []string) bool {
 	return true
 }
 
+func try_digit(args []string, chars []byte, i int, j int) int {
+	var d int
+	if args[i][j] == '.' {
+		for d = 1; d <= 9; d++ {
+			if digit_is_valid(args, chars, i, j, byte(d)) {
+				print_grid(args)
+				return d;
+			}
+		}
+		chars[j] = '.'
+		args[i] = string(chars)
+		return 0;
+	}
+	return -1
+}
+
 func resolve(args []string) {
-	var chars []byte
+	var chars	[]byte
 
 	for i := 0; i < 9; i++ {
 		chars = []byte(args[i])
 		for j := 0; j < 9; j++ {
-			if args[i][j] == '.' {
-				chars[j] = '0'
-				args[i] = string(chars)
-//				if is_valid(args)  {
-//					resolve(args)
-//				} else {
-//
-//				}
+			if try_digit(args, chars, i, j) == 0 {
+//				fmt.Println("fuck")
+//				print_grid(args)
+//				os.Exit(1)
 			}
 		}
 	}
