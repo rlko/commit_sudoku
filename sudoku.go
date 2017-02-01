@@ -17,6 +17,35 @@ type coord struct {
 	j	int
 }
 
+func get_grid(mode *string) []string {
+	var grid []string
+
+	if *mode == "piscine" {
+		grid = flag.Args()
+		if len(grid) != 9 {
+			fmt.Println("Error: invalid grid")
+			return nil
+		}
+	} else {
+		path := flag.Args()[0]
+		file, err := os.Open(path)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			grid = append(grid, scanner.Text())
+		}
+		file.Close()
+		if len(grid) != 9 {
+			fmt.Println("Error: invalid grid")
+			return nil
+		}
+	}
+	return grid
+}
+
 func print_grid(grid []string) {
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
@@ -210,24 +239,9 @@ func main() {
 	var mode = flag.String("mode", "file", "piscine or file")
 	flag.Parse()
 
-	if *mode == "piscine" {
-		grid = flag.Args()
-		if len(grid) != 9 {
-			fmt.Println("Error: invalid grid")
-			return
-		}
-	} else if *mode == "file" {
-		path := flag.Args()[0]
-		file, err := os.Open(path)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			grid = append(grid, scanner.Text())
-		}
-		file.Close()
+	grid = get_grid(mode)
+	if grid == nil {
+		return
 	}
 	if !validate_grid(grid) {
 		return
