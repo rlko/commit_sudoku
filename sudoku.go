@@ -52,6 +52,7 @@ func line_has_duplication(arg string) bool {
 
 func col_has_duplication(args []string, col int) bool {
 	var i, y int
+
 	for i = 0; i < 9; i++ {
 		if unicode.IsNumber(rune(args[i][col])) {
 			for y = 0; y < 9; y++ {
@@ -122,10 +123,7 @@ func has_minimum_required(args []string) bool {
 			}
 		}
 	}
-	if counter < 17 {
-		return false
-	}
-	return true
+	return counter > 16
 }
 
 func validate_grid(args []string) {
@@ -157,12 +155,7 @@ func validate_grid(args []string) {
 func digit_is_valid(args []string, chars []byte, cd coord, d byte) bool {
 	chars[cd.j] = d + '0'
 	args[cd.i] = string(chars)
-	if line_has_duplication(args[cd.i]) || col_has_duplication(args, cd.j) || boxes_have_duplication(args) {
-		chars[cd.j] = '.'
-		args[cd.i] = string(chars)
-		return false
-	}
-	return true
+	return !(line_has_duplication(args[cd.i]) || col_has_duplication(args, cd.j) || boxes_have_duplication(args))
 }
 
 func try_digit(args []string, chars []byte, cd coord) bool {
@@ -187,6 +180,8 @@ func resolve(args []string) bool{
 		for cd.j = 0; cd.j < 9; cd.j++ {
 			if args[cd.i][cd.j] == '.' {
 				if !try_digit(args, chars, cd) {
+					chars[cd.j] = '.'
+					args[cd.i] = string(chars)
 					return false
 				}
 			}
@@ -200,9 +195,9 @@ func main() {
 
 	args = os.Args[1:]
 	if len(args) != 9 {
-		exit_error("Error: invalid grid")
+		fmt.Println("Error: invalid grid")
+		return
 	}
-
 	validate_grid(args)
 	resolve(args)
 	print_grid(args)
