@@ -5,12 +5,15 @@ package main
 import (
 	"fmt"
 	"os"
-	//	"reflect"
-	//	"flag"
 	"regexp"
 	"strings"
 	"unicode"
 )
+
+type coord struct {
+	i	int
+	j	int
+}
 
 func exit_error(str string) {
 	fmt.Println(str)
@@ -30,7 +33,7 @@ func print_grid(args []string) {
 			fmt.Println("---+---+---")
 		}
 	}
-	fmt.Println("")
+	fmt.Print("\n")
 }
 
 func line_has_duplication(arg string) bool {
@@ -38,7 +41,6 @@ func line_has_duplication(arg string) bool {
 
 	for _, chr := range arg {
 		if unicode.IsNumber(chr) {
-//			s = fmt.Sprintf("%c", chr)
 			s = string(chr)
 			if strings.Count(arg, s) > 1 {
 				return true
@@ -90,10 +92,7 @@ func extract_box(args []string, i int, j int) string {
 }
 
 func box_has_duplication(args[]string, i int, j int) bool {
-	if line_has_duplication(extract_box(args, i, j)) {
-		return true
-	}
-	return false
+	return (line_has_duplication(extract_box(args, i, j)))
 }
 
 func boxes_have_duplication(args []string) bool {
@@ -129,7 +128,7 @@ func has_minimum_required(args []string) bool {
 	return true
 }
 
-func validate(args []string) {
+func validate_grid(args []string) {
 	var match bool
 
 	for _, arg := range args {
@@ -155,52 +154,45 @@ func validate(args []string) {
 	}
 }
 
-func digit_is_valid(args []string, chars []byte, i int, j int, d byte) bool {
-	chars[j] = d + '0'
-	args[i] = string(chars)
-
-	if line_has_duplication(args[i]) {
-		return false
-	}
-	if col_has_duplication(args, j) {
-		return false
-	}
-	if boxes_have_duplication(args) {
+func digit_is_valid(args []string, chars []byte, cd coord, d byte) bool {
+	chars[cd.j] = d + '0'
+	args[cd.i] = string(chars)
+	if line_has_duplication(args[cd.i]) || col_has_duplication(args, cd.j) || boxes_have_duplication(args) {
+		chars[cd.j] = '.'
+		args[cd.i] = string(chars)
 		return false
 	}
 	return true
 }
 
-func try_digit(args []string, chars []byte, i int, j int) int {
+func try_digit(args []string, chars []byte, cd coord) bool {
 	var d int
-	if args[i][j] == '.' {
-		for d = 1; d <= 9; d++ {
-			if digit_is_valid(args, chars, i, j, byte(d)) {
-				print_grid(args)
-				return d;
+
+	for d = 1; d <= 9; d++ {
+		if digit_is_valid(args, chars, cd, byte(d)) {
+			if resolve(args) {
+				return true
 			}
 		}
-		chars[j] = '.'
-		args[i] = string(chars)
-		return 0;
 	}
-	return -1
+	return false
 }
 
-func resolve(args []string) {
+func resolve(args []string) bool{
 	var chars	[]byte
+	var cd		coord
 
-	for i := 0; i < 9; i++ {
-		chars = []byte(args[i])
-		for j := 0; j < 9; j++ {
-			if try_digit(args, chars, i, j) == 0 {
-//				fmt.Println("fuck")
-//				print_grid(args)
-//				os.Exit(1)
+	for cd.i = 0; cd.i < 9; cd.i++ {
+		chars = []byte(args[cd.i])
+		for cd.j = 0; cd.j < 9; cd.j++ {
+			if args[cd.i][cd.j] == '.' {
+				if !try_digit(args, chars, cd) {
+					return false
+				}
 			}
 		}
 	}
-	print_grid(args)
+	return true
 }
 
 func main() {
@@ -211,8 +203,7 @@ func main() {
 		exit_error("Error: invalid grid")
 	}
 
-	print_grid(args)
-	validate(args)
+	validate_grid(args)
 	resolve(args)
-
+	print_grid(args)
 }
