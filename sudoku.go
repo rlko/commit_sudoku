@@ -37,7 +37,8 @@ func line_has_duplication(arg string) bool {
 
 	for _, chr := range arg {
 		if unicode.IsNumber(chr) {
-			s = fmt.Sprintf("%c", chr)
+//			s = fmt.Sprintf("%c", chr)
+			s = string(chr)
 			if strings.Count(arg, s) > 1 {
 				return true
 			}
@@ -46,11 +47,26 @@ func line_has_duplication(arg string) bool {
 	return false
 }
 
+func col_has_duplication(args []string, col int) bool {
+	var j, y int
+	for j = 0; j < 9; j++ {
+		if unicode.IsNumber(rune(args[j][col])) {
+			for y = 0; y < 9; y++ {
+				if j != y {
+					if args[j][col] == args[y][col] {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
+}
 func cols_have_duplication(args []string) bool {
 	var i, j, y int
 
 	for i = 0; i < 9; i++ {
-		for j = 1; j < 9; j++ {
+		for j = 0; j < 9; j++ {
 			if unicode.IsNumber(rune(args[j][i])) {
 				for y = 0; y < 9; y++ {
 					if j != y {
@@ -84,9 +100,9 @@ func boxes_have_duplication(args []string) bool {
 //	var box string
 
 	i = 0
-	for i < 8 {
+	for i < 9 {
 		j = 0
-		for j < 8 {
+		for j < 9 {
 //			box = extract_box(args, i, j)
 //			fmt.Println(box)
 			if line_has_duplication(extract_box(args, i, j)) {
@@ -144,8 +160,39 @@ func validate(args []string) {
 	}
 }
 
+func is_valid(args []string) bool {
+	for _, arg := range args {
+		if line_has_duplication(arg) {
+			return false
+		}
+	}
+	if cols_have_duplication(args) {
+		return false
+	}
+	if boxes_have_duplication(args) {
+		return false
+	}
+	return true
+}
+
 func resolve(args []string) {
-// go go go
+	var chars []byte
+
+	for i := 0; i < 9; i++ {
+		chars = []byte(args[i])
+		for j := 0; j < 9; j++ {
+			if args[i][j] == '.' {
+				chars[j] = '0'
+				args[i] = string(chars)
+//				if is_valid(args)  {
+//					resolve(args)
+//				} else {
+//
+//				}
+			}
+		}
+	}
+	print_grid(args)
 }
 
 func main() {
@@ -159,4 +206,5 @@ func main() {
 	print_grid(args)
 	validate(args)
 	resolve(args)
+
 }
