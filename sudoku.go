@@ -162,7 +162,7 @@ func validate_grid(grid []string) bool {
 			return false
 		}
 		if len(line) != 9 {
-			fmt.Println("Error: line has less than 9 characters")
+			fmt.Println("Error: there is not 9 characters in a line")
 			return false
 		}
 		if line_has_duplication(line) {
