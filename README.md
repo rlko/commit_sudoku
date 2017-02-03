@@ -1,5 +1,4 @@
 # sudokool_solver - Sudoku solver in Go
-======
 ###### Wrote this to learn Go.
 ###### This project is originally a school (pool) project that has to be written in C.
 
