@@ -10,6 +10,9 @@ import (
 	"unicode"
 	"flag"
 	"bufio"
+
+	"math/rand"
+	"strconv"
 )
 
 type coord struct {
@@ -248,14 +251,40 @@ func solved(grid []string) bool {
 	return true
 }
 
+func permut_digits(a, b int, grid []string) []string {
+	var i int
+
+	for i = 0; i < 9; i++ {
+		grid[i] = strings.Replace(grid[i], strconv.Itoa(a), "0", -1)
+	}
+	for i = 0; i < 9; i++ {
+		grid[i] = strings.Replace(grid[i], strconv.Itoa(b), strconv.Itoa(a), -1)
+	}
+	for i = 0; i < 9; i++ {
+		grid[i] = strings.Replace(grid[i], "0", strconv.Itoa(b), -1)
+	}
+	return grid
+}
+
+func permut_lines(a, b int, grid []string) {
+	var tmp string
+
+	tmp = grid[a]
+	grid[a] = grid[b]
+	grid[b] = tmp
+}
+
+
+
 func main() {
 	var grid []string
-	var mode = flag.String("mode", "file", "file or piscine")
-	var raw = flag.Bool("r", false, "To print raw ouput")
+	var mode_flag = flag.String("mode", "file", "file or piscine")
+	var raw_flag = flag.Bool("r", false, "To print raw ouput")
+	var create_flag = flag.Bool("c", false, "Generate a grid")
 
 	flag.Usage = usage;
 	flag.Parse()
-	grid = get_grid(*mode)
+	grid = get_grid(*mode_flag)
 	if grid == nil {
 		return
 	}
@@ -264,8 +293,22 @@ func main() {
 	}
 	resolve(grid)
 	if solved(grid) {
-		print_grid(grid, *raw)
+		print_grid(grid, *raw_flag)
 	} else {
 		fmt.Println("Error")
+	}
+	if *create_flag {
+		var ngrid = []string{"892546371", "367218594", "514793268", "641357982", "985421736", "723689415", "159872643", "238964157", "476135829"}
+
+
+		r1 := rand.Intn(8)
+		fmt.Println(r1)
+		r2 := rand.Intn(8)
+		fmt.Println(r2)
+		permut_digits(5, 7, ngrid)
+		print_grid(ngrid, false)
+		permut_lines(0, 2, ngrid)
+		print_grid(ngrid, false)
+		return
 	}
 }
