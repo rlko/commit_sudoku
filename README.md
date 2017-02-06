@@ -3,9 +3,7 @@
 ###### This project is originally a school (pool) project that has to be written in C.
 
  **Usage**<br />
- 	sudoku [-r] [-mode=input_mode] [input]
-		-mode [file input or piscine (args) input
-		-r    To print raw ouput
+ 	`sudoku [-r] [-mode=input_mode] [input]`
 
  **Examples**<br />
 *	`go run sudoku.go sample` or
