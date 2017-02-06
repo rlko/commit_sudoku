@@ -17,17 +17,33 @@ type coord struct {
 	j	int
 }
 
-func get_grid(mode *string) []string {
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage: sudoku [-r] [-mode=input_mode] [input]\n");
+	flag.PrintDefaults();
+	os.Exit(1);
+}
+
+func get_grid(mode string) []string {
 	var grid []string
 
-	if *mode == "piscine" {
+	if mode == "piscine" {
 		grid = flag.Args()
 		if len(grid) != 9 {
 			fmt.Println("Error: invalid grid")
 			return nil
 		}
 	} else {
-		path := flag.Args()[0]
+		var l int = len(flag.Args())
+		var path string
+
+		if l  < 1 {
+			fmt.Println("Error: No file input")
+			return nil
+		}
+		if l > 1 {
+			fmt.Println("Warning: Ignoring all arguments but the first one\n")
+		}
+		path = flag.Args()[0]
 		file, err := os.Open(path)
 		if err != nil {
 			fmt.Println(err)
@@ -46,16 +62,16 @@ func get_grid(mode *string) []string {
 	return grid
 }
 
-func print_grid(grid []string) {
+func print_grid(grid []string, raw bool) {
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
 			fmt.Printf("%c", grid[i][j])
-			if ((j + 1) % 3) == 0 && j != 8 {
+			if !raw && ((j + 1) % 3) == 0 && j != 8 {
 				fmt.Print("|")
 			}
 		}
 		fmt.Print("\n")
-		if ((i + 1) % 3) == 0 && i != 8 {
+		if !raw && ((i + 1) % 3) == 0 && i != 8 {
 			fmt.Println("---+---+---")
 		}
 	}
@@ -66,7 +82,7 @@ func line_has_duplication(line string) bool {
 	var s string
 
 	for _, chr := range line {
-		if unicode.IsNumber(chr) {
+		if unicode.IsDigit(chr) {
 			s = string(chr)
 			if strings.Count(line, s) > 1 {
 				return true
@@ -80,7 +96,7 @@ func col_has_duplication(grid []string, col int) bool {
 	var i, y int
 
 	for i = 0; i < 9; i++ {
-		if unicode.IsNumber(rune(grid[i][col])) {
+		if unicode.IsDigit(rune(grid[i][col])) {
 			for y = 0; y < 9; y++ {
 				if i != y {
 					if grid[i][col] == grid[y][col] {
@@ -191,7 +207,7 @@ func digit_is_valid(grid []string, chars []byte, cd coord, d byte) bool {
 	return !(line_has_duplication(grid[cd.i]) || col_has_duplication(grid, cd.j) || boxes_have_duplication(grid))
 }
 
-func try_digit(grid []string, chars []byte, cd coord) bool {
+func try_digits(grid []string, chars []byte, cd coord) bool {
 	var d int
 
 	for d = 1; d <= 9; d++ {
@@ -212,7 +228,7 @@ func resolve(grid []string) bool{
 		chars = []byte(grid[cd.i])
 		for cd.j = 0; cd.j < 9; cd.j++ {
 			if grid[cd.i][cd.j] == '.' {
-				if !try_digit(grid, chars, cd) {
+				if !try_digits(grid, chars, cd) {
 					chars[cd.j] = '.'
 					grid[cd.i] = string(chars)
 					return false
@@ -235,11 +251,12 @@ func solved(grid []string) bool {
 
 func main() {
 	var grid []string
+	var mode = flag.String("mode", "file", "file or piscine")
+	var raw = flag.Bool("r", false, "To print raw ouput")
 
-	var mode = flag.String("mode", "file", "piscine or file")
+	flag.Usage = usage;
 	flag.Parse()
-
-	grid = get_grid(mode)
+	grid = get_grid(*mode)
 	if grid == nil {
 		return
 	}
@@ -248,7 +265,7 @@ func main() {
 	}
 	resolve(grid)
 	if solved(grid) {
-		print_grid(grid)
+		print_grid(grid, *raw)
 	} else {
 		fmt.Println("Error")
 	}
