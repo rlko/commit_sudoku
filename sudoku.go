@@ -11,13 +11,20 @@ import (
 	"flag"
 	"bufio"
 
-	"math/rand"
+	"bytes"
+//	"math/rand"
 	"strconv"
 )
 
-type coord struct {
+type t_coord struct {
 	i	int
 	j	int
+}
+
+type t_grid struct {
+	lines	[]string
+	cols	[]string
+	squares	[][]string
 }
 
 func usage() {
@@ -122,21 +129,21 @@ func cols_have_duplication(grid []string) bool {
 	return false
 }
 
-func extract_box(grid []string, i int, j int) string {
+func extract_box(grid []string, i, j int) string {
 	var box [9]byte
 	var counter int
 
 	counter = 0
 	for x := 0; x < 3; x++ {
 		for y := 0; y < 3; y++ {
-			box[counter] = grid[i + y][j + x]
+			box[counter] = grid[i + x][j + y]
 			counter++
 		}
 	}
 	return string(box[:])
 }
 
-func box_has_duplication(grid[]string, i int, j int) bool {
+func box_has_duplication(grid[]string, i, j int) bool {
 	return (line_has_duplication(extract_box(grid, i, j)))
 }
 
@@ -162,7 +169,7 @@ func has_minimum_required(grid []string) bool {
 
 	for _, line := range grid {
 		for _, chr := range line {
-			if unicode.IsNumber(rune(chr)) {
+			if unicode.IsDigit(rune(chr)) {
 				counter++
 			}
 		}
@@ -203,13 +210,13 @@ func validate_grid(grid []string) bool {
 	return true
 }
 
-func digit_is_valid(grid []string, chars []byte, cd coord, d byte) bool {
+func digit_is_valid(grid []string, chars []byte, cd t_coord, d byte) bool {
 	chars[cd.j] = d + '0'
 	grid[cd.i] = string(chars)
 	return !(line_has_duplication(grid[cd.i]) || col_has_duplication(grid, cd.j) || boxes_have_duplication(grid))
 }
 
-func try_digits(grid []string, chars []byte, cd coord) bool {
+func try_digits(grid []string, chars []byte, cd t_coord) bool {
 	var d int
 
 	for d = 1; d <= 9; d++ {
@@ -224,7 +231,7 @@ func try_digits(grid []string, chars []byte, cd coord) bool {
 
 func resolve(grid []string) bool{
 	var chars	[]byte
-	var cd		coord
+	var cd		t_coord
 
 	for cd.i = 0; cd.i < 9; cd.i++ {
 		chars = []byte(grid[cd.i])
@@ -274,7 +281,54 @@ func permut_lines(a, b int, grid []string) {
 	grid[b] = tmp
 }
 
+func cols_to_lines(grid []string) []string {
+	var i, j, k int
+	var ngrid []string
+	var buffer bytes.Buffer
 
+	for i = 0; i < 9; i++ {
+		for k = 0; k < 9; k++ {
+			for j = 0; j < 9; j++ {
+				if i == j {
+					buffer.WriteByte(grid[k][i])
+					break
+				}
+			}
+		}
+		ngrid = append(ngrid, buffer.String())
+		buffer.Reset()
+	}
+	return ngrid
+}
+
+func boxes_to_linesrray(grid []string) [][]string {
+	var i, j int
+	var sArray [][]string
+	var arr []string
+
+	i = 0
+	for i < 9 {
+		j = 0
+		for j < 9 {
+			arr = append(arr, extract_box(grid, i, j))
+			j += 3
+		}
+		sArray = append(sArray, arr)
+		arr = nil
+		i += 3
+	}
+	return sArray
+}
+
+
+func build_struct(grid []string) t_grid {
+	var box t_grid
+
+	box.lines = grid
+	box.cols = cols_to_lines(grid)
+	box.squares = boxes_to_linesrray(grid)
+	return box
+}
 
 func main() {
 	var grid []string
@@ -288,6 +342,7 @@ func main() {
 	if grid == nil {
 		return
 	}
+	var box t_grid = build_struct(grid)
 	if !validate_grid(grid) {
 		return
 	}
@@ -300,15 +355,12 @@ func main() {
 	if *create_flag {
 		var ngrid = []string{"892546371", "367218594", "514793268", "641357982", "985421736", "723689415", "159872643", "238964157", "476135829"}
 
+		ngrid = cols_to_lines(ngrid)
+		print_grid(ngrid, false)
+		boxes := boxes_to_linesrray(ngrid)
+		fmt.Println(boxes)
 
-		r1 := rand.Intn(8)
-		fmt.Println(r1)
-		r2 := rand.Intn(8)
-		fmt.Println(r2)
-		permut_digits(5, 7, ngrid)
-		print_grid(ngrid, false)
-		permut_lines(0, 2, ngrid)
-		print_grid(ngrid, false)
+		fmt.Println(box.squares)
 		return
 	}
 }
