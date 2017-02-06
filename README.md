@@ -3,7 +3,8 @@
 ###### This project is originally a school (pool) project that has to be written in C.
 
  **Usage**<br />
- 	`sudoku [-r] [-mode=input_mode] [input]`
+* 	`sudoku [-r] [-mode=input_mode] [input]`
+* 	`sudoku [-c]`
 
  **Examples**<br />
 *	`go run sudoku.go sample` or
