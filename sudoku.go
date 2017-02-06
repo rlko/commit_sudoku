@@ -20,7 +20,6 @@ type coord struct {
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: sudoku [-r] [-mode=input_mode] [input]\n");
 	flag.PrintDefaults();
-	os.Exit(1);
 }
 
 func get_grid(mode string) []string {
