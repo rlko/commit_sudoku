@@ -4,8 +4,8 @@
 
  **Usage**<br />
  	`sudoku [-r] [-mode=input_mode] [input]`
-*		-mode [file input or piscine (args) input
-*		-r    To print raw ouput
+		-mode [file input or piscine (args) input
+		-r    To print raw ouput
 
  **Examples**<br />
 *	`go run sudoku.go sample` or
