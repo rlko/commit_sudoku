@@ -172,7 +172,10 @@ func commit_sudoku(create, raw bool, diff, mode string) bool {
 		var ngrid = []string{"892546371", "367218594", "514793268", "641357982", "985421736", "723689415", "159872643", "238964157", "476135829"}
 
 		if mode != "" {
-			fmt.Fprintf(os.Stderr, "Warning: -mode flag does nothing when generating grid\n\n")
+			fmt.Fprintf(os.Stderr, "Warning: -mode flag does nothing when generating grid\n")
+		}
+		if len(flag.Args()) > 0 {
+			fmt.Fprintf(os.Stderr, "Warning: Ignoring all arguments\n")
 		}
 		shuffle(ngrid)
 		if unfill(ngrid, diff) {
@@ -203,7 +206,7 @@ func get_grid(mode string) []string {
 			return nil
 		}
 		if l > 1 {
-			fmt.Fprintf(os.Stderr, "Warning: Ignoring all arguments but the first one\n\n")
+			fmt.Fprintf(os.Stderr, "Warning: Ignoring all arguments but the first one\n")
 		}
 		path = flag.Args()[0]
 		file, err := os.Open(path)
