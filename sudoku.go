@@ -53,6 +53,7 @@ func has_minimum_required(grid []string) bool {
 			}
 		}
 	}
+	fmt.Println(counter)
 	return counter > 16
 }
 
@@ -148,14 +149,11 @@ func unfill(grid []string, diff string) bool {
 	} else {
 		max = random(50, 60)
 	}
-	for {
+	for counter != max {
 		i = random(0, 9)
 		j = random(0, 9)
 		chars = []byte(grid[i])
 		if grid[i][j] != '.' {
-			if counter == max {
-				break
-			}
 			chars[j] = '.'
 			grid[i] = string(chars)
 			counter++
@@ -392,7 +390,7 @@ func main() {
 	var mode_flag = flag.String("mode", "", "File or piscine input mode")
 	var raw_flag = flag.Bool("r", false, "To print raw ouput")
 	var create_flag = flag.Bool("c", false, "Generate a grid")
-	var diff_flag = flag.String("diff", "normal", "Easy or normal or hard")
+	var diff_flag = flag.String("diff", "", "Easy or normal or hard")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -402,6 +400,9 @@ func main() {
 
 	var grid []string
 
+	if *diff_flag != "" {
+		fmt.Fprintf(os.Stderr, "Warning: -mode flag does nothing when generating grid\n")
+	}
 	grid = get_grid(*mode_flag)
 	if grid == nil {
 		return
