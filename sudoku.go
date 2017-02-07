@@ -3,33 +3,34 @@
 package main
 
 import (
+	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"regexp"
 	"strings"
 	"unicode"
-	"flag"
-	"bufio"
 
 	"bytes"
-//	"math/rand"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 type t_coord struct {
-	i	int
-	j	int
+	i int
+	j int
 }
 
 type t_grid struct {
-	lines	[]string
-	cols	[]string
-	squares	[][]string
+	lines   []string
+	cols    []string
+	squares [][]string
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: sudoku [-r] [-mode=input_mode] [input]\n");
-	flag.PrintDefaults();
+	fmt.Fprintf(os.Stderr, "Usage: sudoku [-r] [-mode=input_mode] [input]\n")
+	flag.PrintDefaults()
 }
 
 func get_grid(mode string) []string {
@@ -45,7 +46,7 @@ func get_grid(mode string) []string {
 		var l int = len(flag.Args())
 		var path string
 
-		if l  < 1 {
+		if l < 1 {
 			fmt.Println("Error: No file input")
 			return nil
 		}
@@ -75,16 +76,18 @@ func print_grid(grid []string, raw bool) {
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
 			fmt.Printf("%c", grid[i][j])
-			if !raw && ((j + 1) % 3) == 0 && j != 8 {
+			if !raw && ((j+1)%3) == 0 && j != 8 {
 				fmt.Print("|")
 			}
 		}
 		fmt.Print("\n")
-		if !raw && ((i + 1) % 3) == 0 && i != 8 {
+		if !raw && ((i+1)%3) == 0 && i != 8 {
 			fmt.Println("---+---+---")
 		}
 	}
-	fmt.Print("\n")
+	if !raw {
+		fmt.Print("\n")
+	}
 }
 
 func line_has_duplication(line string) bool {
@@ -136,14 +139,14 @@ func extract_box(grid []string, i, j int) string {
 	counter = 0
 	for x := 0; x < 3; x++ {
 		for y := 0; y < 3; y++ {
-			box[counter] = grid[i + x][j + y]
+			box[counter] = grid[i+x][j+y]
 			counter++
 		}
 	}
 	return string(box[:])
 }
 
-func box_has_duplication(grid[]string, i, j int) bool {
+func box_has_duplication(grid []string, i, j int) bool {
 	return (line_has_duplication(extract_box(grid, i, j)))
 }
 
@@ -174,6 +177,7 @@ func has_minimum_required(grid []string) bool {
 			}
 		}
 	}
+	fmt.Println(counter)
 	return counter > 16
 }
 
@@ -229,9 +233,9 @@ func try_digits(grid []string, chars []byte, cd t_coord) bool {
 	return false
 }
 
-func resolve(grid []string) bool{
-	var chars	[]byte
-	var cd		t_coord
+func resolve(grid []string) bool {
+	var chars []byte
+	var cd t_coord
 
 	for cd.i = 0; cd.i < 9; cd.i++ {
 		chars = []byte(grid[cd.i])
@@ -261,6 +265,9 @@ func solved(grid []string) bool {
 func permut_digits(a, b int, grid []string) []string {
 	var i int
 
+	if a == b {
+		return grid
+	}
 	for i = 0; i < 9; i++ {
 		grid[i] = strings.Replace(grid[i], strconv.Itoa(a), "0", -1)
 	}
@@ -276,6 +283,9 @@ func permut_digits(a, b int, grid []string) []string {
 func permut_lines(a, b int, grid []string) {
 	var tmp string
 
+	if a == b {
+		return
+	}
 	tmp = grid[a]
 	grid[a] = grid[b]
 	grid[b] = tmp
@@ -320,7 +330,6 @@ func boxes_to_linesrray(grid []string) [][]string {
 	return sArray
 }
 
-
 func build_struct(grid []string) t_grid {
 	var box t_grid
 
@@ -330,19 +339,92 @@ func build_struct(grid []string) t_grid {
 	return box
 }
 
+func random(min, max int) int {
+	rand.Seed(time.Now().UTC().UnixNano())
+	return rand.Intn(max-min) + min
+}
+
+func shuffle(grid []string) {
+	var i int
+	var rdm int
+
+	rdm = random(1, 3)
+	for i = 0; i < rdm; i++ {
+		permut_lines(random(0, 3), random(0, 3), grid)
+		permut_lines(random(3, 6), random(3, 6), grid)
+		permut_lines(random(6, 9), random(6, 9), grid)
+	}
+	rdm = random(1, 3)
+	grid = cols_to_lines(grid)
+	for i = 0; i < rdm; i++ {
+		permut_lines(random(0, 3), random(0, 3), grid)
+		permut_lines(random(3, 6), random(3, 6), grid)
+		permut_lines(random(6, 9), random(6, 9), grid)
+	}
+	rdm = random(1, 3)
+	for i = 0; i < rdm; i++ {
+		permut_digits(random(1, 10), random(1, 10), grid)
+		permut_digits(random(1, 10), random(1, 10), grid)
+		permut_digits(random(1, 10), random(1, 10), grid)
+		permut_digits(random(1, 10), random(1, 10), grid)
+	}
+}
+
+func commit_sudoku(grid []string) bool {
+	unfill(grid)
+	if has_minimum_required(grid) {
+		return true
+	}
+	fmt.Println("Error")
+	return false
+}
+
+func unfill(grid []string) {
+	var chars []byte
+	var r, m, n int
+	var counter int
+
+	counter = 0
+	r = random(91, 120)
+	for i := r; i > 0; i-- {
+		n = random(0, 9)
+		m = random(0, 9)
+		chars = []byte(grid[n])
+		if grid[n][m] != '.' {
+			if counter == 64 {
+				break
+			}
+			chars[m] = '.'
+			grid[n] = string(chars)
+			counter++
+		}
+	}
+}
+
 func main() {
-	var grid []string
 	var mode_flag = flag.String("mode", "file", "file or piscine")
 	var raw_flag = flag.Bool("r", false, "To print raw ouput")
 	var create_flag = flag.Bool("c", false, "Generate a grid")
 
-	flag.Usage = usage;
+	flag.Usage = usage
 	flag.Parse()
+	if *create_flag {
+		var ngrid = []string{"892546371", "367218594", "514793268", "641357982", "985421736", "723689415", "159872643", "238964157", "476135829"}
+
+		shuffle(ngrid)
+		print_grid(ngrid, *raw_flag)
+		if commit_sudoku(ngrid) {
+			print_grid(ngrid, *raw_flag)
+		}
+		return
+	}
+
+	var grid []string
+
 	grid = get_grid(*mode_flag)
 	if grid == nil {
 		return
 	}
-	var box t_grid = build_struct(grid)
 	if !validate_grid(grid) {
 		return
 	}
@@ -351,16 +433,5 @@ func main() {
 		print_grid(grid, *raw_flag)
 	} else {
 		fmt.Println("Error")
-	}
-	if *create_flag {
-		var ngrid = []string{"892546371", "367218594", "514793268", "641357982", "985421736", "723689415", "159872643", "238964157", "476135829"}
-
-		ngrid = cols_to_lines(ngrid)
-		print_grid(ngrid, false)
-		boxes := boxes_to_linesrray(ngrid)
-		fmt.Println(boxes)
-
-		fmt.Println(box.squares)
-		return
 	}
 }
