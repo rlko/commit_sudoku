@@ -3,10 +3,10 @@
 ###### The solving part is originally a school (pool) project that has to be written in C.
 
  **Usage**<br />
-To resolve a grid:
-	* 	`sudoku [-r] [-mode=file|piscine] [input]`
-To generate a grid:
-	* 	`sudoku -c [-r] [-diff=easy|normal|hard]`
+* To resolve a grid:
+ * `sudoku [-r] [-mode=file|piscine] [input]`
+* To generate a grid:
+ * `sudoku -c [-r] [-diff=easy|normal|hard]`
 
  **Examples**<br />
 *	`go run sudoku.go sample` or

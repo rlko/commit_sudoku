@@ -28,6 +28,21 @@ func usage() {
 	flag.PrintDefaults()
 }
 
+func print_grid(grid []string, raw bool) {
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			fmt.Printf("%c", grid[i][j])
+			if !raw && ((j+1)%3) == 0 && j != 8 {
+				fmt.Print("|")
+			}
+		}
+		fmt.Print("\n")
+		if !raw && ((i+1)%3) == 0 && i != 8 {
+			fmt.Println("---+---+---")
+		}
+	}
+}
+
 func has_minimum_required(grid []string) bool {
 	var counter int
 
@@ -157,7 +172,7 @@ func commit_sudoku(create, raw bool, diff, mode string) bool {
 		var ngrid = []string{"892546371", "367218594", "514793268", "641357982", "985421736", "723689415", "159872643", "238964157", "476135829"}
 
 		if mode != "" {
-			fmt.Fprintf(os.Stderr, "Warning: -mode flag does nothing when creating grid\n\n")
+			fmt.Fprintf(os.Stderr, "Warning: -mode flag does nothing when generating grid\n\n")
 		}
 		shuffle(ngrid)
 		if unfill(ngrid, diff) {
@@ -207,21 +222,6 @@ func get_grid(mode string) []string {
 		}
 	}
 	return grid
-}
-
-func print_grid(grid []string, raw bool) {
-	for i := 0; i < 9; i++ {
-		for j := 0; j < 9; j++ {
-			fmt.Printf("%c", grid[i][j])
-			if !raw && ((j+1)%3) == 0 && j != 8 {
-				fmt.Print("|")
-			}
-		}
-		fmt.Print("\n")
-		if !raw && ((i+1)%3) == 0 && i != 8 {
-			fmt.Println("---+---+---")
-		}
-	}
 }
 
 func line_has_duplication(line string) bool {
