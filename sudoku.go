@@ -202,8 +202,11 @@ func get_grid(mode string) []string {
 		var path string
 
 		if l < 1 {
-			fmt.Println("Error: No file input")
-			return nil
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				grid = append(grid, scanner.Text())
+			}
+			return grid
 		}
 		if l > 1 {
 			fmt.Fprintf(os.Stderr, "Warning: Ignoring all arguments but the first one\n")
