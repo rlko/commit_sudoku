@@ -1,10 +1,12 @@
-# sudokool_solver - Sudoku solver in Go
+# commit_sudoku - a sudoku generator and solver in Go
 ###### Wrote this to learn Go.
-###### This project is originally a school (pool) project that has to be written in C.
+###### The solving part is originally a school (pool) project that has to be written in C.
 
  **Usage**<br />
-* 	`sudoku [-r] [-mode=input_mode] [input]`
-* 	`sudoku [-c]`
+To resolve a grid:
+	* 	`sudoku [-r] [-mode=file|piscine] [input]`
+To generate a grid:
+	* 	`sudoku -c [-r] [-diff=easy|normal|hard]`
 
  **Examples**<br />
 *	`go run sudoku.go sample` or
