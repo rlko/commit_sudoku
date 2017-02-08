@@ -53,15 +53,14 @@ func has_minimum_required(grid []string) bool {
 			}
 		}
 	}
-	fmt.Println(counter)
 	return counter > 16
 }
 
-func permut_digits(a, b int, grid []string) []string {
+func permut_digits(a, b int, grid []string) {
 	var i int
 
 	if a == b {
-		return grid
+		return
 	}
 	for i = 0; i < 9; i++ {
 		grid[i] = strings.Replace(grid[i], strconv.Itoa(a), "0", -1)
@@ -72,7 +71,6 @@ func permut_digits(a, b int, grid []string) []string {
 	for i = 0; i < 9; i++ {
 		grid[i] = strings.Replace(grid[i], "0", strconv.Itoa(b), -1)
 	}
-	return grid
 }
 
 func permut_lines(a, b int, grid []string) {
@@ -112,8 +110,7 @@ func random(min, max int) int {
 }
 
 func shuffle(grid []string) {
-	var i int
-	var rdm int
+	var i, rdm int
 
 	rdm = random(1, 3)
 	for i = 0; i < rdm; i++ {
@@ -139,8 +136,7 @@ func shuffle(grid []string) {
 
 func unfill(grid []string, diff string) bool {
 	var chars []byte
-	var i, j int
-	var counter, max int
+	var i, j, counter, max int
 
 	if diff == "easy" {
 		max = random(40, 50)
