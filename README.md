@@ -1,6 +1,5 @@
 # commit_sudoku - a sudoku generator and solver in Go
-###### Wrote this to learn Go.
-###### The solving part is originally a school (pool) project that has to be written in C.
+###### Wrote this to learn Go. (You shouldn't use this.)
 
 ### Build
 * `go build sudoku.go`
